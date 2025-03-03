@@ -1,0 +1,114 @@
+services:
+  # ✅ Primary PostgreSQL Database (Writer)
+  db_writer:
+    image: postgres:latest
+    container_name: db_writer
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: main_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # ✅ Read Replica Database (Reader)
+  db_reader:
+    image: postgres:latest
+    container_name: db_reader
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: main_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_reader_data:/var/lib/postgresql/data
+
+  # ✅ PgBouncer (Connection Pooling)
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    container_name: pgbouncer
+    restart: always
+    environment:
+      DATABASE_URL: "postgres://postgres:password@db_writer:5432/main_db"
+      PGBOUNCER_AUTH_TYPE: "trust"
+      PGBOUNCER_MAX_CLIENT_CONN: 100
+      PGBOUNCER_DEFAULT_POOL_SIZE: 20
+    ports:
+      - "6432:6432"
+    depends_on:
+      - db_writer
+      - db_reader
+
+  # ✅ Redis (Caching)
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # ✅ MongoDB (Logs)
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb_data:/data/db
+
+  # ✅ LocalStack (S3)
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    restart: always
+    environment:
+      - SERVICES=s3
+      - DEFAULT_REGION=us-east-1
+      - EDGE_PORT=4566
+    ports:
+      - "4566:4566"
+    volumes:
+      - localstack_data:/var/lib/localstack
+
+  # ✅ Rails API Application
+  web:
+    build: .
+    container_name: rails_api
+    restart: always
+    depends_on:
+      - db_writer
+      - db_reader
+      - pgbouncer
+      - redis
+      - mongodb
+      - localstack
+    environment:
+      DATABASE_URL: "postgres://postgres:password@pgbouncer:6432/main_db"
+      DATABASE_READER_URL: "postgres://postgres:password@db_reader:5432/main_db"
+      REDIS_URL: "redis://redis:6379/0"
+      MONGO_URL: "mongodb://root:password@mongodb:27017/logs_db"
+      AWS_ACCESS_KEY_ID: "test"
+      AWS_SECRET_ACCESS_KEY: "test"
+      AWS_S3_ENDPOINT: "http://localstack:4566"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    command: ["rails", "server", "-b", "0.0.0.0"]
+
+volumes:
+  postgres_data:
+  postgres_reader_data:
+  redis_data:
+  mongodb_data:
+  localstack_data:
