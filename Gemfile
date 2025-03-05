@@ -56,9 +56,10 @@ gem 'dry-validation', '~> 1.11', '>= 1.11.1'
 
 # 📌 Feature flagging and gradual rollouts for controlled deployments
 gem 'flipper', '~> 1.3', '>= 1.3.3'
+gem 'flipper-active_record'
 
 # 📌 Official MongoDB ODM for handling NoSQL data in Rails
-#gem 'mongoid', '~> 9.0'
+gem 'mongoid', '~> 9.0'
 
 # 📌 Lightweight authorization with policy-based access control
 gem 'pundit', '~> 2.4'
