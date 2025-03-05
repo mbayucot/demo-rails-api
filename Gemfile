@@ -102,7 +102,7 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri mingw x64_mingw ]
   gem 'brakeman', require: false
-  gem 'database_cleaner'
+  gem 'database_cleaner-active_record'
   gem 'db-query-matchers'
   gem 'fuubar' # Better formatter for rspec
   gem 'rspec-benchmark'
@@ -115,6 +115,8 @@ group :development, :test do
   gem 'simplecov', require: false
   gem 'spring-commands-rspec'
   gem 'test-prof'
+  gem 'rspec-json_expectations'
+  gem 'faker'
 end
 
 group :development do
@@ -128,6 +130,7 @@ group :development do
   gem 'yard'
   gem 'yard-rails'
   gem 'yard-rspec'
+  gem 'factory_bot_rails'
 end
 
 group :test do
