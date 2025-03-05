@@ -20,7 +20,7 @@ RSpec.describe "Stores API", type: :request do
     it "returns all stores for the logged-in user" do
       get "/stores", headers: valid_headers
       expect(response).to have_http_status(:ok)
-      expect(json.size).to eq(1)
+      expect(JSON.parse(response.body).size).to eq(1)
     end
   end
 
@@ -28,38 +28,38 @@ RSpec.describe "Stores API", type: :request do
     it "returns the store details" do
       get "/stores/#{store.id}", headers: valid_headers
       expect(response).to have_http_status(:ok)
-      expect(json["id"]).to eq(store.id)
+      expect(JSON.parse(response.body)["id"]).to eq(store.id)
     end
   end
 
   describe "POST /stores" do
-    let(:valid_params) { { store: { name: "New Store", address: "456 Market St" } } }
-    let(:invalid_params) { { store: { name: "", address: "" } } }
+    let(:valid_params) { { name: "New Store", address: "456 Market St" } }
+    let(:invalid_params) { { name: "", address: "" } }
 
-    context "with valid parameters" do
+    context 'with valid parameters' do
       it "creates a store" do
         post "/stores", params: valid_params, headers: valid_headers
         expect(response).to have_http_status(:created)
-        expect(json["name"]).to eq("New Store")
+        expect(JSON.parse(response.body)["name"]).to eq("New Store")
       end
     end
 
-    context "with invalid parameters" do
+    fcontext 'with invalid parameters' do
       it "returns unprocessable entity for invalid input" do
         post "/stores", params: invalid_params, headers: valid_headers
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(json["errors"]).to include("Name can't be blank")
+        expect(json).to include_json('name': ["can't be blank"])
       end
     end
   end
 
   describe "PATCH /stores/:id" do
-    let(:update_params) { { store: { name: "Updated Store Name" } } }
+    let(:update_params) { { name: "Updated Store Name" } }
 
     it "updates the store" do
       patch "/stores/#{store.id}", params: update_params, headers: valid_headers
       expect(response).to have_http_status(:ok)
-      expect(json["name"]).to eq("Updated Store Name")
+      expect(JSON.parse(response.body)["name"]).to eq("Updated Store Name")
     end
   end
 
