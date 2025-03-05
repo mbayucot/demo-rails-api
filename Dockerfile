@@ -6,14 +6,18 @@ ENV LANG=C.UTF-8 \
     APP_PATH=/app
 
 # Install dependencies
-RUN apt-get update -qq && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    nodejs \
-    yarn \
-    postgresql-client \
-    git \
-    vim \
+RUN apt-get update && apt-get install -y --fix-missing \
+  build-essential \
+  curl \
+  gcc \
+  git \
+  libcurl4-openssl-dev \
+  libpq-dev \
+  libxml2-dev \
+  ssh \
+  supervisor \
+  vim \
+  postgresql-client  \
     && rm -rf /var/lib/apt/lists/*  # Clean up APT cache to reduce image size
 
 # Set working directory
@@ -32,4 +36,5 @@ COPY . .
 EXPOSE 3000
 
 # Start the Rails server with Puma
-CMD ["bundle", "exec", "puma"]
+COPY .devops/conf/supervisor/conf.d/ /etc/supervisor/conf.d
+CMD /usr/bin/supervisord -n

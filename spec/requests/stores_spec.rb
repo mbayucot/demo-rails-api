@@ -5,7 +5,7 @@ RSpec.describe "Stores API", type: :request do
   let!(:product_manager) { create(:user, role: :product_manager) }
   let!(:regular_user) { create(:user, role: :user) }
 
-  let!(:stores) { create_list(:store, 3) }
+  let!(:stores) { create_list(:store, 30) }
   let(:store) { stores.first }
 
   let(:valid_attributes) do
@@ -22,11 +22,13 @@ RSpec.describe "Stores API", type: :request do
   end
 
   describe "GET /stores" do
-    it "allows any user to view stores" do
-      get "/stores", headers: auth_headers(regular_user)
+    it "returns paginated stores" do
+      get "/stores?page=1", headers: auth_headers(admin)
 
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body).size).to eq(3)
+      json_response = JSON.parse(response.body)
+      expect(json_response["stores"].size).to eq(10) # Per page = 10
+      expect(json_response["pagination"]["total_pages"]).to be > 1
     end
   end
 

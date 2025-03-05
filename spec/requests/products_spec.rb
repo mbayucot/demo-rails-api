@@ -6,7 +6,7 @@ RSpec.describe "Products API", type: :request do
   let!(:regular_user) { create(:user, role: :user) }
 
   let!(:store) { create(:store) }
-  let!(:categories) { create_list(:category, 3) }
+  let!(:products) { create_list(:product, 30, store: store) } # More products for pagination
   let!(:product) { create(:product, store: store, categories: categories) }
 
   let(:valid_attributes) do
@@ -25,11 +25,13 @@ RSpec.describe "Products API", type: :request do
   end
 
   describe "GET /stores/:store_id/products" do
-    it "allows any user to view products" do
-      get "/stores/#{store.id}/products", headers: auth_headers(regular_user)
+    it "returns paginated products" do
+      get "/stores/#{store.id}/products?page=1", headers: auth_headers(admin)
 
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body).size).to eq(1)
+      json_response = JSON.parse(response.body)
+      expect(json_response["products"].size).to eq(10) # Per page = 10
+      expect(json_response["pagination"]["total_pages"]).to be > 1
     end
   end
 

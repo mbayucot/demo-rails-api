@@ -4,13 +4,17 @@ class ProductsController < ApplicationController
 
   before_action :authenticate_user!
   before_action :set_store
-  before_action :set_product, only: %i[show update destroy]
+  before_action :set_product, only: %i[show update destroy submit_for_review approve reject discard restore]
 
   # GET /stores/:store_id/products
   def index
     products = @store.products.with_attached_image.includes(:categories)
+                     .paginate(page: params[:page], per_page: 10)
     authorize products
-    render json: ProductBlueprint.render(products, view: :extended), status: :ok
+    render json: {
+      products: ProductBlueprint.render(products, view: :extended),
+      pagination: pagination_meta(products)
+    }, status: :ok
   end
 
   # GET /stores/:store_id/products/:id
@@ -37,11 +41,39 @@ class ProductsController < ApplicationController
     render json: ProductBlueprint.render(@product, view: :extended), status: :ok
   end
 
-  # DELETE /stores/:store_id/products/:id
-  def destroy
+  # DELETE /stores/:store_id/products/:id (Soft delete)
+  def discard
     authorize @product
-    @product.destroy
-    head :no_content
+    @product.discard!
+    render json: { message: "Product has been soft deleted" }, status: :ok
+  end
+
+  # POST /stores/:store_id/products/:id/restore
+  def restore
+    authorize @product
+    @product.undiscard!
+    render json: { message: "Product has been restored" }, status: :ok
+  end
+
+  # POST /stores/:store_id/products/:id/submit_for_review
+  def submit_for_review
+    authorize @product
+    @product.submit_for_review!
+    render json: { message: "Product submitted for review" }, status: :ok
+  end
+
+  # POST /stores/:store_id/products/:id/approve
+  def approve
+    authorize @product
+    @product.approve!
+    render json: { message: "Product approved" }, status: :ok
+  end
+
+  # POST /stores/:store_id/products/:id/reject
+  def reject
+    authorize @product
+    @product.reject!
+    render json: { message: "Product rejected" }, status: :ok
   end
 
   private
@@ -56,11 +88,5 @@ class ProductsController < ApplicationController
 
   def product_params
     params.require(:product).permit(:name, :description, :price)
-  end
-
-  def attach_image(product, image_param)
-    return unless image_param.present?
-
-    product.image.attach(image_param)
   end
 end
