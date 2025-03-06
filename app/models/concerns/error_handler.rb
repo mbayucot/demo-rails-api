@@ -7,7 +7,7 @@ module ErrorHandler
     end
 
     rescue_from ActiveRecord::RecordInvalid do |exception|
-      render json: exception.record.errors, status: :unprocessable_entity
+      render json: { errors: exception.record.errors }, status: :unprocessable_entity
     end
   end
 end
