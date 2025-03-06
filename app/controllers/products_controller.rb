@@ -47,7 +47,7 @@ class ProductsController < ApplicationController
   end
 
   def product_params
-    params.permit(:name, :description, :price)
+    params.permit(:name, :description, :price, category_ids: [])
   end
 
   def update_categories(product, category_ids)
