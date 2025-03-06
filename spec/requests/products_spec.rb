@@ -11,6 +11,8 @@ RSpec.describe "Products API", type: :request do
     product
   end
 
+  let(:image) { fixture_file_upload(Rails.root.join('spec/fixtures/sample_image.jpg'), 'image/jpeg') }
+
   let(:valid_headers) do
     Devise::JWT::TestHelpers.auth_headers({ "Accept" => "application/json" }, user)
   end
@@ -33,15 +35,15 @@ RSpec.describe "Products API", type: :request do
   end
 
   describe "POST /stores/:store_id/products" do
-    let(:valid_params) { { name: "New Product", description: "A great item", price: 99.99, category_ids: [categories.first.id, categories.last.id] } }
+    let(:valid_params) { { name: "New Product", description: "A great item", price: 99.99, category_ids: [categories.first.id, categories.last.id], image: image } }
     let(:invalid_params) { { name: "", description: "", price: -10 } }
 
-    it "creates a product with categories" do
+    it "creates a product with categories and image" do
       post "/stores/#{store.id}/products", params: valid_params, headers: valid_headers
-      puts json["errors"]
       expect(response).to have_http_status(:created)
       expect(json["name"]).to eq("New Product")
       expect(json["categories"].size).to eq(2) # Should have 2 categories assigned
+      expect(json["image_url"]).not_to be_nil
     end
 
     #it "returns unprocessable entity for invalid input" do

@@ -18,6 +18,10 @@ class ProductsController < ApplicationController
     product = @store.products.new(product_params.merge(user: current_user))
     update_categories(product, params[:category_ids])
 
+    if params[:image].present?
+      product.image.attach(params[:image])
+    end
+
     product.save!
     render json: ProductBlueprint.render(product), status: :created
   end
@@ -25,6 +29,12 @@ class ProductsController < ApplicationController
   # PATCH/PUT /stores/:store_id/products/:id
   def update
     @product.update!(product_params)
+
+    if params[:image].present?
+      @product.image.purge # Remove existing image
+      @product.image.attach(params[:image]) # Attach new image
+    end
+
     update_categories(@product, params[:category_ids]) if params.key?(:category_ids)
 
     render json: ProductBlueprint.render(@product), status: :ok
@@ -47,7 +57,7 @@ class ProductsController < ApplicationController
   end
 
   def product_params
-    params.permit(:name, :description, :price, category_ids: [])
+    params.permit(:name, :description, :price, :image, category_ids: [])
   end
 
   def update_categories(product, category_ids)
