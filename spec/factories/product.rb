@@ -5,5 +5,9 @@ FactoryBot.define do
     price { Faker::Commerce.price(range: 1.0..100.0) }
     association :store
     association :user
+
+    after(:create) do |product|
+      create_list(:product_category, 2, product: product, category: create(:category))
+    end
   end
 end

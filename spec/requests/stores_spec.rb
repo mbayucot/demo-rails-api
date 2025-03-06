@@ -48,7 +48,7 @@ RSpec.describe "Stores API", type: :request do
       it "returns unprocessable entity for invalid input" do
         post "/stores", params: invalid_params, headers: valid_headers
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(json).to include_json('name': ["can't be blank"])
+        expect(json['errors']).to include_json('name': ["can't be blank"])
       end
     end
   end

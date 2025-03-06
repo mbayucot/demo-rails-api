@@ -4,10 +4,12 @@ RSpec.describe Product, type: :model do
   describe "Associations" do
     it { should belong_to(:store) }
     it { should belong_to(:user) }
+    it { should have_many(:product_categories).dependent(:destroy) }
+    it { should have_many(:categories).through(:product_categories) }
   end
 
   describe "Validations" do
-    subject { create(:product) } # Ensures uniqueness tests work properly
+    subject { create(:product) }
 
     it { should validate_presence_of(:name) }
     it { should validate_length_of(:name).is_at_least(3).is_at_most(100) }
