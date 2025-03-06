@@ -6,8 +6,8 @@ FactoryBot.define do
     association :store
     association :user
 
-    after(:create) do |product|
-      create_list(:product_category, 2, product: product, category: create(:category))
+    after(:create) do |product, evaluator|
+      product.categories << create_list(:category, 2) # Ensures join table is used
     end
   end
 end

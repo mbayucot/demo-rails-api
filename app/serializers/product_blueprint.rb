@@ -5,4 +5,5 @@ class ProductBlueprint < Blueprinter::Base
 
   association :store, blueprint: StoreBlueprint
   association :user, blueprint: UserBlueprint
+  association :categories, blueprint: CategoryBlueprint
 end

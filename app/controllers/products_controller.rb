@@ -4,7 +4,7 @@ class ProductsController < ApplicationController
 
   # GET /stores/:store_id/products
   def index
-    products = @store.products
+    products = @store.products.includes(:categories)
     render json: ProductBlueprint.render(products), status: :ok
   end
 
@@ -15,13 +15,18 @@ class ProductsController < ApplicationController
 
   # POST /stores/:store_id/products
   def create
-    product = @store.products.create!(product_params.merge(user: current_user))
+    product = @store.products.new(product_params.merge(user: current_user))
+    update_categories(product, params[:category_ids])
+
+    product.save!
     render json: ProductBlueprint.render(product), status: :created
   end
 
   # PATCH/PUT /stores/:store_id/products/:id
   def update
     @product.update!(product_params)
+    update_categories(@product, params[:category_ids]) if params.key?(:category_ids)
+
     render json: ProductBlueprint.render(@product), status: :ok
   end
 
@@ -43,5 +48,12 @@ class ProductsController < ApplicationController
 
   def product_params
     params.permit(:name, :description, :price)
+  end
+
+  def update_categories(product, category_ids)
+    return if category_ids.nil?
+
+    valid_categories = Category.where(id: category_ids)
+    product.categories = valid_categories
   end
 end
