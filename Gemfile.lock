@@ -380,6 +380,12 @@ GEM
       rubocop (~> 1.72, >= 1.72.1)
     ruby-prof (1.7.1)
     ruby-progressbar (1.13.0)
+    sentry-rails (5.22.4)
+      railties (>= 5.0)
+      sentry-ruby (~> 5.22.4)
+    sentry-ruby (5.22.4)
+      bigdecimal
+      concurrent-ruby (~> 1.0, >= 1.0.2)
     shoulda-matchers (6.4.0)
       activesupport (>= 5.2.0)
     sidekiq (7.3.9)
@@ -388,6 +394,8 @@ GEM
       logger
       rack (>= 2.2.4)
       redis-client (>= 0.22.2)
+    sidekiq-batch (0.2.0)
+      sidekiq (>= 7, < 8)
     simplecov (0.22.0)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
@@ -484,8 +492,11 @@ DEPENDENCIES
   rubocop-rails
   rubocop-rspec
   ruby-prof
+  sentry-rails
+  sentry-ruby
   shoulda-matchers
   sidekiq (~> 7.3, >= 7.3.9)
+  sidekiq-batch (~> 0.2.0)
   simplecov
   spring
   spring-commands-rspec
