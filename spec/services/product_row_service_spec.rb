@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ProductImportService do
+RSpec.describe ProductRowService do
   let(:store) { create(:store, name: "Sample Store") }
   let(:category1) { create(:category, name: "Electronics") }
   let(:category2) { create(:category, name: "Gadgets") }
@@ -29,7 +29,7 @@ RSpec.describe ProductImportService do
     }
   end
 
-  let(:service) { ProductImportService.new }
+  let(:service) { ProductRowService.new }
 
   describe "#validate_row" do
     it "validates a correct row successfully" do

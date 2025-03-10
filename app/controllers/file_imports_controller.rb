@@ -10,8 +10,8 @@ class FileImportsController < ApplicationController
     file_import = current_user.file_imports.create!(file_import_params)
 
     if file_import.file.attached?
-      file_import.start_import! # Change state to in_progress
-      #FileImportWorker.perform_async(file_import.id)
+      file_import.start_import!
+      FileImportWorker.perform_async(file_import.id)
       render json: { message: "File import started", file_import: file_import }, status: :accepted
     else
       render json: { error: "File is required" }, status: :unprocessable_entity
