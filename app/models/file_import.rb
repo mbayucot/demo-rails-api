@@ -1,6 +1,7 @@
 class FileImport < ApplicationRecord
   belongs_to :user
   has_one_attached :file
+  has_many :file_import_logs, dependent: :destroy
 
   include AASM
 

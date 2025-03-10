@@ -1,11 +1,6 @@
-class FileImportLog
-  include Mongoid::Document
-  include Mongoid::Timestamps
+class FileImportLog < ApplicationRecord
+  belongs_to :file_import
 
-  store_in collection: "file_import_logs" # Explicitly set collection name
-
-  field :file_import_id, type: Integer
-  field :row_number, type: Integer
-  field :status, type: String, default: "pending" # success, failed
-  field :message, type: String
+  validates :status, presence: true, inclusion: { in: %w[pending success failed] }
+  validates :message, presence: true
 end
