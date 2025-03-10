@@ -9,4 +9,5 @@ class User < ApplicationRecord
 
   has_many :stores, dependent: :destroy
   has_many :products, dependent: :destroy
+  has_many :file_imports, dependent: :destroy
 end

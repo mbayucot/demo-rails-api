@@ -10,6 +10,8 @@ Rails.application.routes.draw do
     resources :products
   end
 
+  resources :file_imports, only: [:index, :create]
+
   devise_for :users,
              controllers: {
                sessions: 'users/sessions',
