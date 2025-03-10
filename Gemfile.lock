@@ -224,6 +224,12 @@ GEM
       activemodel (>= 5.1, < 8.1, != 7.0.0)
       concurrent-ruby (>= 1.0.5, < 2.0)
       mongo (>= 2.18.0, < 3.0.0)
+    mongoid-compatibility (1.0.0)
+      activesupport
+      mongoid (>= 2.0)
+    mongoid-rspec (4.2.0)
+      mongoid (>= 3.0, < 10.0)
+      mongoid-compatibility (>= 0.5.1)
     msgpack (1.8.0)
     net-imap (0.5.6)
       date
@@ -472,6 +478,7 @@ DEPENDENCIES
   listen
   memory_profiler
   mongoid (~> 9.0)
+  mongoid-rspec (~> 4.2)
   paper_trail (~> 16.0)
   pg (~> 1.1)
   pg_search (~> 2.3, >= 2.3.7)

@@ -122,6 +122,7 @@ group :development, :test do
   gem 'test-prof'
   gem 'rspec-json_expectations'
   gem 'faker'
+  gem 'mongoid-rspec', '~> 4.2'
 end
 
 group :development do

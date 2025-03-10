@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_03_06_045512) do
+ActiveRecord::Schema[7.0].define(version: 2025_03_10_021542) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -42,10 +42,35 @@ ActiveRecord::Schema[7.0].define(version: 2025_03_06_045512) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "batch_imports", force: :cascade do |t|
+    t.bigint "store_id", null: false
+    t.bigint "user_id", null: false
+    t.string "state"
+    t.integer "total_records"
+    t.integer "success_count"
+    t.integer "failure_count"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["store_id"], name: "index_batch_imports_on_store_id"
+    t.index ["user_id"], name: "index_batch_imports_on_user_id"
+  end
+
   create_table "categories", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "file_imports", force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "status", default: "pending"
+    t.integer "total_rows", default: 0
+    t.integer "processed_rows", default: 0
+    t.integer "success_rows", default: 0
+    t.integer "failed_rows", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_file_imports_on_user_id"
   end
 
   create_table "flipper_features", force: :cascade do |t|
@@ -126,6 +151,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_03_06_045512) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "batch_imports", "stores"
+  add_foreign_key "batch_imports", "users"
+  add_foreign_key "file_imports", "users"
   add_foreign_key "product_categories", "categories"
   add_foreign_key "product_categories", "products"
   add_foreign_key "products", "stores"
