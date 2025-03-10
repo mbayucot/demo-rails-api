@@ -10,4 +10,11 @@ class User < ApplicationRecord
   has_many :stores, dependent: :destroy
   has_many :products, dependent: :destroy
   has_many :file_imports, dependent: :destroy
+
+  validates :first_name, presence: true, length: { minimum: 2 }
+  validates :last_name, presence: true, length: { minimum: 2 }
+
+  def full_name
+    "#{first_name} #{last_name}"
+  end
 end
