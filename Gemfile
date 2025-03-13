@@ -58,9 +58,6 @@ gem 'dry-validation', '~> 1.11', '>= 1.11.1'
 gem 'flipper', '~> 1.3', '>= 1.3.3'
 gem 'flipper-active_record'
 
-# 📌 Official MongoDB ODM for handling NoSQL data in Rails
-gem 'mongoid', '~> 9.0'
-
 # 📌 Lightweight authorization with policy-based access control
 gem 'pundit', '~> 2.4'
 
@@ -122,7 +119,6 @@ group :development, :test do
   gem 'test-prof'
   gem 'rspec-json_expectations'
   gem 'faker'
-  gem 'mongoid-rspec', '~> 4.2'
 end
 
 group :development do

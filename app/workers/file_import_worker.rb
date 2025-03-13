@@ -1,10 +1,10 @@
-require 'csv' # ✅ Fix: Ensure CSV module is available
+require 'csv'
 
 class FileImportWorker
   include Sidekiq::Job
   sidekiq_options queue: :default, retry: 3, backtrace: true
 
-  BATCH_SIZE = 1000 # Each loader processes 1000 rows
+  BATCH_SIZE = 1000
 
   def perform(file_import_id)
     file_import = FileImport.find_by(id: file_import_id)
@@ -13,16 +13,20 @@ class FileImportWorker
     file_import.update(status: "in_progress")
 
     file = file_import.file.download
-    csv = CSV.parse(file, headers: true, header_converters: :symbol) # ✅ Now CSV is available
+    csv = CSV.parse(file, headers: true, header_converters: :symbol)
 
-    batch = Sidekiq::Batch.new
-    batch.on(:complete, FileImportBatchCallback, "file_import_id" => file_import_id)
+    total_rows = csv.length
+    return if total_rows.zero?
 
-    batch.jobs do
-      total_rows = csv.length
-      (0..(total_rows / BATCH_SIZE)).each do |idx|
-        LoaderWorker.perform_async(file_import_id, idx * BATCH_SIZE, BATCH_SIZE)
-      end
+    # ✅ Instead of using Sidekiq::Batch, we manually track the job completion
+    total_jobs = (total_rows / BATCH_SIZE.to_f).ceil
+    remaining_jobs_key = "file_import:#{file_import_id}:remaining_jobs"
+
+    # Initialize remaining jobs counter in Redis
+    Sidekiq.redis { |conn| conn.set(remaining_jobs_key, total_jobs) }
+
+    (0...total_jobs).each do |idx|
+      LoaderWorker.perform_async(file_import_id, idx * BATCH_SIZE, BATCH_SIZE)
     end
   end
 end

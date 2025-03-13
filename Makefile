@@ -7,7 +7,7 @@ SERVICE_MONGO = mongo
 
 # Build the project
 build:
-	$(DOCKER_COMPOSE) build
+	$(DOCKER_COMPOSE) build --no-cache
 
 # Start all services
 start:

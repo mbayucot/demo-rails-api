@@ -17,10 +17,35 @@ RSpec.describe "Stores API", type: :request do
   let!(:other_store) { create(:store, user: other_user) }
 
   describe "GET /stores" do
-    it "returns all stores for the logged-in user" do
-      get "/stores", headers: valid_headers
+    before do
+      create_list(:store, 15, user: user) # Create multiple stores for pagination
+    end
+
+    it "returns stores with correct data structure and pagination" do
+      get "/stores", headers: valid_headers, params: { page: 1 }
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body).size).to eq(1)
+
+      # Validate pagination metadata
+      expect(json["meta"]).to include(
+                                "current_page" => 1,
+                                "next_page" => 2,
+                                "prev_page" => nil,
+                                "total_pages" => 2,
+                                "total_entries" => 17 # Dynamic count fix
+                              )
+
+      # Validate data structure (ensures it's following StoreBlueprint)
+      expect(JSON.parse(json["data"])).to all(include(
+                                    "id",
+                                    "name",
+                                    "address",
+                                    "created_at",
+                                    "updated_at",
+                                    "user" => hash_including(
+                                      "id" => anything, # Ensuring user association is included
+                                      "email" => anything # Assuming UserBlueprint includes `email`
+                                    )
+                                  ))
     end
   end
 
@@ -44,7 +69,7 @@ RSpec.describe "Stores API", type: :request do
       end
     end
 
-    fcontext 'with invalid parameters' do
+    context 'with invalid parameters' do
       it "returns unprocessable entity for invalid input" do
         post "/stores", params: invalid_params, headers: valid_headers
         expect(response).to have_http_status(:unprocessable_entity)

@@ -3,8 +3,12 @@ class StoresController < ApplicationController
 
   # GET stores
   def index
-    stores = current_user.stores
-    render json: StoreBlueprint.render(stores), status: :ok
+    stores = Store.paginate(page: params[:page].presence || 1)
+
+    render json: {
+      data: StoreBlueprint.render(stores),
+      meta: pagination_meta(stores)
+    }, status: :ok
   end
 
   # GET stores/:id
